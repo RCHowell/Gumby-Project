@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gumby_project/components/my_title.dart';
 import 'package:gumby_project/components/sector_tile.dart';
@@ -5,9 +6,10 @@ import 'package:gumby_project/components/vote_chart.dart';
 import 'package:gumby_project/models/sector.dart';
 import 'package:gumby_project/presenters/home_presenter.dart';
 import 'package:gumby_project/repos/vote_repo.dart';
+import 'package:gumby_project/views/discussion_view.dart';
+import 'package:gumby_project/views/settings_view.dart';
 
 class HomeView extends StatefulWidget {
-  HomeView({Key key}) : super(key: key);
   final String title = "Gumby Project".toUpperCase();
 
   @override
@@ -15,9 +17,8 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> implements HomeViewContract {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   HomePresenter _presenter;
   VoteRepo _voteRepo;
@@ -69,17 +70,11 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
   //   WIDGET BUILDING
   // -------------------
 
-  SliverFillRemaining _loadingWidget() => SliverFillRemaining(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-
   Widget _appBar() => AppBar(
         leading: IconButton(
           icon: Icon(Icons.settings, color: Colors.white),
           onPressed: () {
-            print('Settings');
+            _goToSettings(context);
           },
         ),
         title: Text(
@@ -112,7 +107,7 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
         color: Colors.white,
         child: ListTile(
           onTap: () {
-            print('Chalk talk');
+            _goToDiscussion(context);
           },
           title: Text('Chalk Talk'),
           trailing: Icon(Icons.chevron_right),
@@ -139,6 +134,19 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
       children.add(Divider(height: 2.0));
     });
     return children;
+  }
+
+  void _goToDiscussion(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => DiscussionView(),
+    ));
+  }
+
+  void _goToSettings(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+      fullscreenDialog: true,
+      builder: (_) => SettingsView(),
+    ));
   }
 
 }

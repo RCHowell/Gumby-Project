@@ -7,6 +7,7 @@ import 'package:gumby_project/components/my_title.dart';
 import 'package:gumby_project/models/message.dart';
 import 'package:gumby_project/presenters/route_presenter.dart';
 import 'package:gumby_project/models/route.dart' as gp_route;
+import 'package:gumby_project/views/message_view.dart';
 
 class RouteView extends StatefulWidget {
   final gp_route.Route route;
@@ -144,11 +145,16 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-      child: FlatButton(
+      child: RaisedButton(
         child: Text('New Comment'),
         color: theme.primaryColor,
         textColor: Colors.white,
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => MessageView(routeId: widget.route.id),
+            fullscreenDialog: true,
+          ));
+        },
       ),
     );
   }

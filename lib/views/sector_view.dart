@@ -25,12 +25,14 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
 
   SectorPresenter _presenter;
   List<gp_route.Route> _routes;
+  bool _loading;
 
   @override
   void initState() {
     _presenter = SectorPresenter(this);
     _routes = List();
     _presenter.getRoutesForSector(widget._sector.id);
+    _loading = true;
     super.initState();
   }
 
@@ -39,6 +41,7 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
   void onGetRoutesComplete(List<gp_route.Route> routes) {
     setState(() {
       _routes = routes;
+      _loading = false;
     });
   }
 
@@ -58,22 +61,31 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
       Divider(height: 2.0),
     ];
 
-    if (_routes.length == 0) {
+    if (_loading) {
       children.add(Container(
         height: 200.0,
         child: Center(
-          child: Text('No routes yet'),
+          child: CircularProgressIndicator(),
         ),
       ));
     } else {
-      _routes.forEach((gp_route.Route r) {
-        children.add(RouteListTile(r, () {
-          Navigator.of(context).push(MaterialPageRoute(
+      if (_routes.length == 0) {
+        children.add(Container(
+          height: 200.0,
+          child: Center(
+            child: Text('No routes yet'),
+          ),
+        ));
+      } else {
+        _routes.forEach((gp_route.Route r) {
+          children.add(RouteListTile(r, () {
+            Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => RouteView(r),
-          ));
-        }));
-        children.add(Divider(height: 2.0));
-      });
+            ));
+          }));
+          children.add(Divider(height: 2.0));
+        });
+      }
     }
 
     return Scaffold(

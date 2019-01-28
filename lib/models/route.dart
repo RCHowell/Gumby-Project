@@ -7,6 +7,7 @@ class Route {
   final String imageUrl;
   final String setter;
   final num rating;
+  final DateTime createdAt;
 
   Route({
     this.id,
@@ -16,6 +17,7 @@ class Route {
     this.imageUrl,
     this.setter,
     this.rating,
+    this.createdAt,
   });
 
 
