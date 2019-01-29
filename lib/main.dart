@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:gumby_project/whois.dart' as Whois;
 import 'package:flutter/material.dart';
 import 'package:gumby_project/views/home_view.dart';
@@ -22,6 +23,8 @@ void main() async {
       ),
     );
   }
+
+  Firestore(app: FirebaseApp.instance);
 
   await setWhoIs();
 

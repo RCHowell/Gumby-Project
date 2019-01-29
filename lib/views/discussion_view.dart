@@ -80,7 +80,7 @@ class _DiscussionViewState extends State<DiscussionView>
           Navigator.of(context).push(MaterialPageRoute(
             fullscreenDialog: true,
             builder: (_) => MessageView(),
-          ));
+          )).then((_) => _presenter.getLatestMessages());
         },
       ),
     );

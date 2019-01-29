@@ -53,6 +53,7 @@ class HomePresenter {
     final docDir = await getApplicationDocumentsDirectory();
     String path = join(docDir.path, "whois");
     File(path).writeAsStringSync(name);
+    User.whois = name;
     _view.onWriteWhoIsComplete();
   }
 

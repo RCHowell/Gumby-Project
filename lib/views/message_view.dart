@@ -53,7 +53,7 @@ class _MessageViewState extends State<MessageView>
         content: Text('Image is still uploading'),
       ));
     } else {
-      var message = Message(
+      Message message = Message(
         content: _messageContent,
         createdAt: DateTime.now(),
         author: Whois.whois,

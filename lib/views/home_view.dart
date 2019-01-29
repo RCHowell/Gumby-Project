@@ -7,6 +7,7 @@ import 'package:gumby_project/presenters/home_presenter.dart';
 import 'package:gumby_project/repos/vote_repo.dart';
 import 'package:gumby_project/views/discussion_view.dart';
 import 'package:gumby_project/views/settings_view.dart';
+import 'package:after_layout/after_layout.dart';
 
 class HomeView extends StatefulWidget {
   final String title = "Gumby Project".toUpperCase();
@@ -15,7 +16,9 @@ class HomeView extends StatefulWidget {
   _HomeViewState createState() => _HomeViewState();
 }
 
-class _HomeViewState extends State<HomeView> implements HomeViewContract {
+class _HomeViewState extends State<HomeView>
+    with AfterLayoutMixin<HomeView>
+    implements HomeViewContract {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
@@ -29,7 +32,6 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
     _presenter = HomePresenter(this);
     _voteRepo = VoteRepo();
     _presenter.initialize();
-    _presenter.checkWhoIs();
     super.initState();
   }
 
@@ -53,13 +55,17 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
   }
 
   @override
+  void afterFirstLayout(BuildContext context) {
+    // Calling the same function "after layout" to resolve the issue.
+    _presenter.checkWhoIs();
+  }
+
+  @override
   void promptForWhoIs() {
-    Future.delayed(Duration(seconds: 2), () {
-      showDialog(
-        context: context,
-        builder: (_) => whoIsDialog(),
-      );
-    });
+    showDialog(
+      context: context,
+      builder: (_) => whoIsDialog(),
+    );
   }
 
   // ---------
@@ -68,7 +74,6 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       key: _scaffoldKey,
       appBar: _appBar(),
@@ -116,9 +121,10 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
 
     // to be shown when writing text
     bool loading = false;
-    if (loading) return AlertDialog(
-      content: CircularProgressIndicator(),
-    );
+    if (loading)
+      return AlertDialog(
+        content: CircularProgressIndicator(),
+      );
 
     return AlertDialog(
       title: Text('New phone. Who dis?'),
@@ -126,6 +132,7 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
         onChanged: (String input) {
           whoInput = input;
         },
+        maxLength: 30,
       ),
       actions: <Widget>[
         FlatButton(
@@ -185,7 +192,7 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
 
   void _goToDiscussion(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
-        builder: (_) => DiscussionView(),
+      builder: (_) => DiscussionView(),
     ));
   }
 
@@ -195,7 +202,4 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
       builder: (_) => SettingsView(),
     ));
   }
-
-
 }
-
