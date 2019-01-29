@@ -1,8 +1,10 @@
 import 'dart:io';
-
+import 'package:gumby_project/whois.dart' as Whois;
 import 'package:flutter/material.dart';
 import 'package:gumby_project/views/home_view.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() async {
 
@@ -21,7 +23,18 @@ void main() async {
     );
   }
 
+  await setWhoIs();
+
   runApp(MyApp());
+}
+
+Future<void> setWhoIs() async {
+  final docDir = await getApplicationDocumentsDirectory();
+  String path = join(docDir.path, "whois");
+  // Only copy if the database doesn't exist
+  if (FileSystemEntity.typeSync(path) != FileSystemEntityType.notFound) {
+    Whois.whois = await File(path).readAsStringSync();
+  }
 }
 
 class MyApp extends StatelessWidget {

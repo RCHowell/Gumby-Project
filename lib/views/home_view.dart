@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:gumby_project/components/my_title.dart';
 import 'package:gumby_project/components/sector_tile.dart';
@@ -30,6 +29,7 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
     _presenter = HomePresenter(this);
     _voteRepo = VoteRepo();
     _presenter.initialize();
+    _presenter.checkWhoIs();
     super.initState();
   }
 
@@ -47,12 +47,28 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
     ));
   }
 
+  @override
+  void onWriteWhoIsComplete() {
+    Navigator.of(context).pop();
+  }
+
+  @override
+  void promptForWhoIs() {
+    Future.delayed(Duration(seconds: 2), () {
+      showDialog(
+        context: context,
+        builder: (_) => whoIsDialog(),
+      );
+    });
+  }
+
   // ---------
   //   BUILD
   // ---------
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       key: _scaffoldKey,
       appBar: _appBar(),
@@ -94,6 +110,37 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
           )
         ],
       );
+
+  Widget whoIsDialog() {
+    String whoInput;
+
+    // to be shown when writing text
+    bool loading = false;
+    if (loading) return AlertDialog(
+      content: CircularProgressIndicator(),
+    );
+
+    return AlertDialog(
+      title: Text('New phone. Who dis?'),
+      content: TextField(
+        onChanged: (String input) {
+          whoInput = input;
+        },
+      ),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: () {
+            loading = true;
+            _presenter.setWhoIs(whoInput);
+          },
+          child: Text('Save'),
+          textColor: Theme
+              .of(context)
+              .highlightColor,
+        ),
+      ],
+    );
+  }
 
   List<Widget> _listChildren() {
     List<Widget> children = [
@@ -148,6 +195,7 @@ class _HomeViewState extends State<HomeView> implements HomeViewContract {
       builder: (_) => SettingsView(),
     ));
   }
+
 
 }
 

@@ -1,10 +1,20 @@
+import 'dart:io';
+
 import 'package:gumby_project/models/sector.dart';
 import 'package:gumby_project/repos/sector_repo.dart';
 import 'package:gumby_project/repos/vote_repo.dart';
+import 'package:gumby_project/whois.dart' as User;
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 abstract class HomeViewContract {
   void updateSectors(List<Sector> sectors);
+
   void onVoteCastComplete(String message);
+
+  void promptForWhoIs();
+
+  void onWriteWhoIsComplete();
 }
 
 class HomePresenter {
@@ -31,6 +41,19 @@ class HomePresenter {
 
   void castVote(String key, int val) {
     _voteRepo.castVote(key, val).then(_view.onVoteCastComplete);
+  }
+
+  void checkWhoIs() {
+    if (User.whois == null) {
+      _view.promptForWhoIs();
+    }
+  }
+
+  void setWhoIs(String name) async {
+    final docDir = await getApplicationDocumentsDirectory();
+    String path = join(docDir.path, "whois");
+    File(path).writeAsStringSync(name);
+    _view.onWriteWhoIsComplete();
   }
 
 }

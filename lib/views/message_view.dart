@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gumby_project/components/image_upload.dart';
 import 'package:gumby_project/models/message.dart';
+import 'package:gumby_project/whois.dart' as Whois;
 import 'package:gumby_project/presenters/message_presenter.dart';
 
 class MessageView extends StatefulWidget {
@@ -55,7 +56,7 @@ class _MessageViewState extends State<MessageView>
       var message = Message(
         content: _messageContent,
         createdAt: DateTime.now(),
-        author: 'Conner',
+        author: Whois.whois,
         imageUrl: _imageUrl,
       );
       if (widget.routeId != null) {
