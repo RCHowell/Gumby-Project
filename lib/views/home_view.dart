@@ -93,7 +93,7 @@ class _HomeViewState extends State<HomeView>
 
   Widget _appBar() => AppBar(
         leading: IconButton(
-          icon: Icon(Icons.settings, color: Colors.white),
+          icon: Icon(Icons.perm_identity, color: Colors.white),
           onPressed: () {
             _goToSettings(context);
           },
@@ -106,14 +106,6 @@ class _HomeViewState extends State<HomeView>
             color: Colors.white,
           ),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add_circle, color: Colors.white),
-            onPressed: () {
-              print('New Route');
-            },
-          )
-        ],
       );
 
   Widget whoIsDialog() {
@@ -153,7 +145,7 @@ class _HomeViewState extends State<HomeView>
     List<Widget> children = [
       MyTitle('Sector Votes'),
       Divider(height: 2.0),
-      VoteChart(_voteRepo.getVotes()),
+      _VoteChartWidget(_presenter),
       Divider(height: 2.0),
       MyTitle('General'),
       Divider(height: 2.0),
@@ -164,17 +156,6 @@ class _HomeViewState extends State<HomeView>
             _goToDiscussion(context);
           },
           title: Text('Chalk Talk'),
-          trailing: Icon(Icons.chevron_right),
-        ),
-      ),
-      Divider(height: 2.0),
-      Material(
-        color: Colors.white,
-        child: ListTile(
-          onTap: () {
-            print('Recent Routes');
-          },
-          title: Text('Recent Routes'),
           trailing: Icon(Icons.chevron_right),
         ),
       ),
@@ -202,4 +183,37 @@ class _HomeViewState extends State<HomeView>
       builder: (_) => SettingsView(),
     ));
   }
+}
+
+class _VoteChartWidget extends StatelessWidget {
+
+  final HomePresenter _presenter;
+
+  _VoteChartWidget(this._presenter);
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _presenter.voteRepo.getVotes(),
+      builder: (_, snapshot) {
+        switch (snapshot.connectionState) {
+          case ConnectionState.done:
+            if (snapshot.hasError)
+              return Text(snapshot.error);
+            else
+              return VoteChart(snapshot.data);
+            break;
+          default:
+            return Container(
+              height: 120,
+              child: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+            break;
+        }
+      },
+    );
+  }
+
 }

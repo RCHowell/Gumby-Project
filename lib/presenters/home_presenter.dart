@@ -21,11 +21,11 @@ class HomePresenter {
 
   final HomeViewContract _view;
   SectorRepo _sectorRepo;
-  VoteRepo _voteRepo;
+  VoteRepo voteRepo;
 
   HomePresenter(this._view) {
     _sectorRepo = SectorRepo();
-    _voteRepo = VoteRepo();
+    voteRepo = VoteRepo();
   }
 
   /// To be used with a [RefreshIndicator]
@@ -40,7 +40,7 @@ class HomePresenter {
   }
 
   void castVote(String key, int val) {
-    _voteRepo.castVote(key, val).then(_view.onVoteCastComplete);
+    voteRepo.castVote(key, val).then(_view.onVoteCastComplete);
   }
 
   void checkWhoIs() {

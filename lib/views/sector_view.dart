@@ -99,6 +99,12 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
             color: Colors.white,
           ),
         ),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add_circle_outline),
+            onPressed: () {},
+          ),
+        ],
       ),
       body: ListView(
         children: children,

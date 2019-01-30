@@ -1,6 +1,7 @@
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:gumby_project/models/vote.dart';
+import 'package:gumby_project/repos/vote_repo.dart';
 
 class VoteChart extends StatelessWidget {
 
@@ -109,7 +110,7 @@ class VoteChart extends StatelessWidget {
       "H": 0,
     };
     votes.forEach((Vote v) {
-      if (v.val == voteType) freqs[v.key] += 1;
+      if (v.value == voteType) freqs[v.sector] += 1;
     });
     List<VoteCount> counts = List();
     freqs.forEach((String key, num count) => counts.add(VoteCount(key, count)));
