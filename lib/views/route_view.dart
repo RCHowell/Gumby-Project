@@ -54,6 +54,30 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
     Navigator.of(_scaffoldKey.currentContext).pop();
   }
 
+  void _confirmDelete(BuildContext context) {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) {
+          return AlertDialog(
+            title: Text('Confirm Delete'),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('NO!'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              FlatButton(
+                child: Text('ye boi'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  _presenter.deleteRoute(_route.id);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -84,7 +108,7 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
           IconButton(
             icon: Icon(Icons.delete_outline),
             onPressed: () {
-              _presenter.deleteRoute(_route.id);
+              _confirmDelete(context);
             },
           ),
         ],
