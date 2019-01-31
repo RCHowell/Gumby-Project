@@ -76,6 +76,7 @@ class _MessageViewState extends State<MessageView>
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        centerTitle: true,
         title: Text('New Message'),
       ),
       body: (_loading)

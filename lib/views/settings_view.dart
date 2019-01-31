@@ -35,6 +35,7 @@ class _SettingsViewState extends State<SettingsView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Change Username'),
       ),
       body: Column(

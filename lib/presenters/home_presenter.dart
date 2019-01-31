@@ -32,11 +32,13 @@ class HomePresenter {
   Future<Null> initialize() async {
 //    _view.onInitializeChange(false);
     _view.updateSectors([]);
-    return Future.delayed(Duration(milliseconds: 250), () {
-//      _view.onInitializeChange(true);
-      _view.updateSectors(_sectorRepo.getSectors());
+    try {
+      List<Sector> sectors = await _sectorRepo.getSectors();
+      _view.updateSectors(sectors);
       return Future.value(null);
-    });
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   void castVote(String key, int val) {

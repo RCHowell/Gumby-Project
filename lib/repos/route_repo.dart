@@ -1,52 +1,48 @@
+import 'package:gumby_project/models/message.dart';
 import 'package:gumby_project/models/route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RouteRepo {
+  final CollectionReference routes = Firestore.instance.collection('routes');
 
   Future<List<Route>> getRoutesForSector(String key) {
-    return Future.delayed(Duration(seconds: 2), () {
-      return [
-        Route(
-          name: 'Silence',
-          grade: 'V1',
-          setter: 'Adam Ondra',
-          rating: 1.0,
-          description: 'Heinous moves to even more heinous holds. Eat your Wheaties, kids. Could be downgraded',
-          imageUrl: 'https://i.ytimg.com/vi/CHE5ssb2aBs/maxresdefault.jpg',
-        ),
-        Route(
-          name: 'Burden of Dreams',
-          grade: 'V17',
-          setter: 'Nalle Huka?',
-          rating: -2.0,
-          description: 'A testament to pain',
-          imageUrl: 'https://i.ytimg.com/vi/CHE5ssb2aBs/maxresdefault.jpg',
-        ),
-        Route(
-          name: 'The Process',
-          grade: 'V14',
-          setter: 'Daniel Woods',
-          rating: 3.0,
-          description: 'Just trust your feet and pray. Casual V7 slab topout',
-          imageUrl: 'https://i.ytimg.com/vi/CHE5ssb2aBs/maxresdefault.jpg',
-        ),
-        Route(
-          name: 'Pink One',
-          grade: 'V3',
-          setter: 'Conner',
-          rating: 2.3,
-          description: 'Low quality. Contrived. Pull harder. V9 in your gym.',
-          imageUrl: 'https://i.ytimg.com/vi/CHE5ssb2aBs/maxresdefault.jpg',
-        ),
-        Route(
-          name: 'Linear Algebra Done Right',
-          grade: 'V6',
-          setter: 'Axler',
-          rating: 0.6,
-          description: 'Maybe not the best route, but it gets the job done.',
-          imageUrl: 'https://i.ytimg.com/vi/CHE5ssb2aBs/maxresdefault.jpg',
-        ),
-      ];
-    });
+    Query query = routes
+        .where('sector', isEqualTo: key)
+        .orderBy('createdAt', descending: true)
+        .limit(25);
+    return query
+        .getDocuments()
+        .then((snapshot) => snapshot.documents.map(Route.fromDoc).toList());
   }
 
+  Future<String> saveRoute(Route route) {
+    return routes.add(route.toMap()).then((DocumentReference ref) {
+      CollectionReference messages = ref.collection('messages');
+      return messages.add(Message(
+        author: route.setter,
+        createdAt: DateTime.now(),
+        content: 'Route created 🤙',
+      ).toMap());
+    }).then((_) => 'Route created!');
+  }
+
+  Future<List<Route>> getLatestRoutes() {
+    Query query = routes.orderBy('createdAt', descending: true).limit(25);
+    return query
+        .getDocuments()
+        .then((snapshot) => snapshot.documents.map(Route.fromDoc).toList());
+  }
+
+  Future<String> deleteRoute(String routeId) {
+    return routes.document(routeId).delete().then((_) => 'Route deleted!');
+  }
+
+  Future<String> rateRoute(Route route, int val) {
+    DocumentReference ref = routes.document(route.id);
+    List rating = List.from(route.rating);
+    rating.add(val);
+    return ref.updateData({
+      'rating': rating,
+    }).then((_) => 'Rated route!');
+  }
 }

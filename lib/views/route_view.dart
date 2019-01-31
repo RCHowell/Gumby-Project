@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gumby_project/components/hero_photo_view_wrapper.dart';
@@ -22,12 +24,14 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   RoutePresenter _presenter;
   List<Message> _comments;
+  gp_route.Route _route;
 
   @override
   void initState() {
     _presenter = RoutePresenter(this);
     _comments = List();
     _presenter.getCommentsForRoute(widget.route.id);
+    _route = widget.route;
     super.initState();
   }
 
@@ -46,15 +50,19 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
   }
 
   @override
-  Widget build(BuildContext context) {
+  void onRouteDeleted(String message) {
+    Navigator.of(_scaffoldKey.currentContext).pop();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
 
     List<Widget> children = [
-      LargeRouteImage(widget.route.imageUrl),
+      LargeRouteImage(_route.imageUrl),
       MyTitle('About'),
       Divider(height: 2.0),
-      _about(widget.route, theme),
+      _about(_route, theme),
       Divider(height: 2.0),
       MyTitle('Discussion'),
       Divider(height: 2.0),
@@ -68,12 +76,16 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
     children.add(_newCommentButton(context));
 
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
-        title: Text(widget.route.name),
+        centerTitle: true,
+        title: Text(_route.name),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.delete),
-            onPressed: () {},
+            icon: Icon(Icons.delete_outline),
+            onPressed: () {
+              _presenter.deleteRoute(_route.id);
+            },
           ),
         ],
       ),
@@ -113,7 +125,30 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
                     child: Text('RATE'),
                     textColor: Colors.white,
                     color: theme.primaryColor,
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context)
+                          .push(MaterialPageRoute(
+                        builder: (_) => RateRouteView(route, _presenter),
+                        fullscreenDialog: true,
+                      ))
+                          .then((val) {
+                        List rating = List.from(route.rating);
+                        rating.add(val);
+                        setState(() {
+                          _route = gp_route.Route(
+                            id: route.id,
+                            name: route.name,
+                            grade: route.grade,
+                            description: route.description,
+                            imageUrl: route.imageUrl,
+                            setter: route.setter,
+                            sector: route.sector,
+                            rating: rating,
+                            createdAt: route.createdAt,
+                          );
+                        });
+                      });
+                    },
                   ),
                   Text(
                     'Set by ${route.setter}',
@@ -140,7 +175,6 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
   }
 
   Widget _newCommentButton(BuildContext context) {
-
     ThemeData theme = Theme.of(context);
 
     return Container(
@@ -150,10 +184,12 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
         color: theme.primaryColor,
         textColor: Colors.white,
         onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
+          Navigator.of(context)
+              .push(MaterialPageRoute(
             builder: (_) => MessageView(routeId: widget.route.id),
             fullscreenDialog: true,
-          ));
+          ))
+              .then((_) => _presenter.getCommentsForRoute(widget.route.id));
         },
       ),
     );
@@ -165,10 +201,12 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
     double size = 14.0;
 
     // Round count to nearest whole
-    num abs = widget.route.rating.abs();
+    num avg = widget.route.rating.reduce((acc, v) => acc + v) /
+        widget.route.rating.length;
+    num abs = avg.abs();
     int val = abs.round();
     IconData icon;
-    if (widget.route.rating > 0) {
+    if (avg > 0) {
       icon = Icons.star;
     } else {
       icon = FontAwesomeIcons.bomb;
@@ -199,43 +237,149 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
 }
 
 class LargeRouteImage extends StatelessWidget {
-  final String url;
+  final String imageUrl;
   final double height = 140.0;
 
-  LargeRouteImage(this.url);
+  LargeRouteImage(this.imageUrl);
+
+  Future<String> getFullImageUrl() async {
+    FirebaseStorage storage = FirebaseStorage(
+      app: FirebaseApp.instance,
+      storageBucket: 'gs://gumby-project-images',
+    );
+    StorageReference ref = storage.ref().child(imageUrl);
+    return await ref.getDownloadURL();
+  }
 
   @override
   Widget build(BuildContext context) {
-    CachedNetworkImage img = CachedNetworkImage(
-      imageUrl: url,
-      placeholder: Container(
-        height: height,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-      errorWidget: Icon(Icons.error),
-      fit: BoxFit.cover,
-      height: height,
-    );
-
-    return InkWell(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => HeroPhotoViewWrapper(
-                    imageProvider: CachedNetworkImageProvider(url),
-                    tag: url,
+    return FutureBuilder(
+        future: getFullImageUrl(),
+        builder: (_, snapshot) {
+          switch (snapshot.connectionState) {
+            case ConnectionState.done:
+              if (snapshot.hasError)
+                return Text('${snapshot.error}');
+              else
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              HeroPhotoViewWrapper(
+                                imageProvider:
+                                CachedNetworkImageProvider(snapshot.data),
+                                tag: snapshot.data,
+                              ),
+                        ));
+                  },
+                  child: Container(
+                    height: height,
+                    child: Hero(
+                      tag: snapshot.data,
+                      child: CachedNetworkImage(
+                        imageUrl: snapshot.data,
+                        placeholder: Container(
+                          height: height,
+                          child: Center(
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                        errorWidget: Icon(Icons.error),
+                        fit: BoxFit.cover,
+                        height: height,
+                      ),
+                    ),
                   ),
-            ));
-      },
-      child: Container(
-        height: 150.0,
-        child: Hero(
-          tag: url,
-          child: img,
-        ),
+                );
+              break;
+            default:
+              return Container(
+                height: height,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              );
+              break;
+          }
+        });
+  }
+}
+
+class RateRouteView extends StatefulWidget {
+  final RoutePresenter presenter;
+  final gp_route.Route route;
+
+  RateRouteView(this.route, this.presenter);
+
+  @override
+  State<StatefulWidget> createState() => _RateRouteViewState();
+}
+
+class _RateRouteViewState extends State<RateRouteView> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _loading;
+
+  @override
+  void initState() {
+    _loading = false;
+    super.initState();
+  }
+
+  void rateRoute(int val) {
+    setState(() {
+      _loading = true;
+    });
+    widget.presenter.rateRoute(widget.route, val, (String message) {
+      Navigator.of(_scaffoldKey.currentContext).pop(val);
+    }, (String errorMessage) {
+      print(errorMessage);
+      _scaffoldKey.currentState
+          .showSnackBar(SnackBar(content: Text(errorMessage)));
+    });
+  }
+
+  List<Widget> _iconList(int val) {
+    IconData icon = (val > 0) ? Icons.star : FontAwesomeIcons.bomb;
+    int count = val.abs();
+    return List.generate(count, (_) => Icon(icon, color: Colors.white));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('Rate "${widget.route.name}"'),
+      ),
+      body: (_loading)
+          ? Center(
+        child: CircularProgressIndicator(),
+      )
+          : ListView.builder(
+        itemBuilder: (_, i) {
+          // 0,1,2,3,4,5 -> -3,-2,-1,1,2,3
+          int val = (i >= 3) ? i - 2 : i - 3;
+          return Container(
+            margin: const EdgeInsets.symmetric(
+                vertical: 2.0, horizontal: 12.0),
+            child: FlatButton(
+              color: Theme
+                  .of(context)
+                  .primaryColor,
+              onPressed: () {
+                rateRoute(val);
+              },
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: _iconList(val),
+              ),
+            ),
+          );
+        },
+        itemCount: 6,
       ),
     );
   }

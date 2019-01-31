@@ -6,7 +6,6 @@ import 'package:gumby_project/models/message.dart';
 import 'package:gumby_project/views/message_view.dart';
 
 class DiscussionView extends StatefulWidget {
-
   @override
   State<StatefulWidget> createState() => _DiscussionViewState();
 }
@@ -36,52 +35,50 @@ class _DiscussionViewState extends State<DiscussionView>
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> _children = [
-      _newMessageButton(context),
-      Divider(height: 2.0),
-      MyTitle('Recent Messages'),
-      Divider(height: 2.0),
-    ];
-
-    _messages.forEach((Message m) {
-      _children.add(MessageTile(m));
-      _children.add(Divider(height: 2.0));
-    });
-
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: Text('Message Board'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.add_circle_outline),
+            onPressed: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (_) => MessageView(),
+              ))
+                  .then((_) => _presenter.getLatestMessages());
+            },
+          ),
+        ],
       ),
       body: (_loading)
-          ? _loadingWidget()
-          : ListView(
-              children: _children,
+          ? Center(
+        child: CircularProgressIndicator(),
+      )
+          : Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          MyTitle('Recent Messages'),
+          Divider(height: 2.0),
+          Expanded(
+            child: RefreshIndicator(
+              child: ListView.separated(
+                itemBuilder: (_, i) {
+                  if (i == _messages.length) return Container();
+                  return MessageTile(_messages[i]);
+                },
+                separatorBuilder: (_, i) => Divider(height: 2.0),
+                itemCount: _messages.length + 1,
+              ),
+              onRefresh: () {
+                _presenter.getLatestMessages();
+                return Future.value(null);
+              },
             ),
-    );
-  }
-
-  Widget _loadingWidget() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
-  }
-
-  Widget _newMessageButton(BuildContext context) {
-    ThemeData theme = Theme.of(context);
-
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-      child: RaisedButton(
-        child: Text('New Message'),
-        color: theme.primaryColor,
-        textColor: Colors.white,
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            fullscreenDialog: true,
-            builder: (_) => MessageView(),
-          )).then((_) => _presenter.getLatestMessages());
-        },
+          ),
+        ],
       ),
     );
   }

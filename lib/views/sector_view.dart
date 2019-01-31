@@ -6,21 +6,19 @@ import 'package:gumby_project/components/route_list_tile.dart';
 import 'package:gumby_project/models/sector.dart';
 import 'package:gumby_project/models/route.dart' as gp_route;
 import 'package:gumby_project/presenters/sector_presenter.dart';
+import 'package:gumby_project/views/create_route_view.dart';
 import 'package:gumby_project/views/route_view.dart';
 
 class SectorView extends StatefulWidget {
-
   final Sector _sector;
 
   SectorView(this._sector);
 
   @override
   State createState() => _SectorViewState();
-
 }
 
 class _SectorViewState extends State<SectorView> implements SectorViewContract {
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   SectorPresenter _presenter;
@@ -35,7 +33,6 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
     _loading = true;
     super.initState();
   }
-
 
   @override
   void onGetRoutesComplete(List<gp_route.Route> routes) {
@@ -54,7 +51,6 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
 
   @override
   Widget build(BuildContext context) {
-
     List<Widget> children = [
       LargeSectorImage(widget._sector.imageUrl),
       MyTitle('Routes (By Most Recent)'),
@@ -81,7 +77,7 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
           children.add(RouteListTile(r, () {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (_) => RouteView(r),
-            ));
+            )).then((_) => _presenter.getRoutesForSector(widget._sector.id));
           }));
           children.add(Divider(height: 2.0));
         });
@@ -91,6 +87,7 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
+        centerTitle: true,
         title: Text(
           widget._sector.name,
           style: TextStyle(
@@ -102,7 +99,15 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add_circle_outline),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(
+                builder: (_) => CreateRouteView(widget._sector.id),
+                fullscreenDialog: true,
+              ))
+                  .then(
+                      (_) => _presenter.getRoutesForSector(widget._sector.id));
+            },
           ),
         ],
       ),
@@ -111,12 +116,9 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
       ),
     );
   }
-
-
 }
 
 class LargeSectorImage extends StatelessWidget {
-
   final String url;
   final double height = 140.0;
 
@@ -124,7 +126,6 @@ class LargeSectorImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     CachedNetworkImage img = CachedNetworkImage(
       imageUrl: url,
       placeholder: Container(
@@ -158,6 +159,4 @@ class LargeSectorImage extends StatelessWidget {
       ),
     );
   }
-
-
 }

@@ -41,7 +41,7 @@ class SectorTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  FlatButton(
+                  RaisedButton(
                     child: Text('KEEP'),
                     onPressed: () {
                       _voteMethod(_sector.id, 1);
@@ -49,7 +49,7 @@ class SectorTile extends StatelessWidget {
                     color: theme.primaryColor,
                     textColor: Colors.white,
                   ),
-                  FlatButton(
+                  RaisedButton(
                     child: Text('RESET'),
                     onPressed: () {
                       _voteMethod(_sector.id, -1);

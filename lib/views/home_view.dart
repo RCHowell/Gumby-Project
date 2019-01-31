@@ -8,6 +8,7 @@ import 'package:gumby_project/repos/vote_repo.dart';
 import 'package:gumby_project/views/discussion_view.dart';
 import 'package:gumby_project/views/settings_view.dart';
 import 'package:after_layout/after_layout.dart';
+import 'package:gumby_project/views/recent_routes_view.dart';
 
 class HomeView extends StatefulWidget {
   final String title = "Gumby Project".toUpperCase();
@@ -64,6 +65,7 @@ class _HomeViewState extends State<HomeView>
   void promptForWhoIs() {
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (_) => whoIsDialog(),
     );
   }
@@ -98,6 +100,7 @@ class _HomeViewState extends State<HomeView>
             _goToSettings(context);
           },
         ),
+    centerTitle: true,
         title: Text(
           'Gumby Project',
           style: TextStyle(
@@ -160,6 +163,17 @@ class _HomeViewState extends State<HomeView>
         ),
       ),
       Divider(height: 2.0),
+      Material(
+        color: Colors.white,
+        child: ListTile(
+          onTap: () {
+            _goToRecentRoutes(context);
+          },
+          title: Text('Recent Routes'),
+          trailing: Icon(Icons.chevron_right),
+        ),
+      ),
+      Divider(height: 2.0),
       MyTitle('Sectors'),
       Divider(height: 2.0),
     ];
@@ -174,6 +188,12 @@ class _HomeViewState extends State<HomeView>
   void _goToDiscussion(BuildContext context) {
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => DiscussionView(),
+    ));
+  }
+
+  void _goToRecentRoutes(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => RecentRoutesView(),
     ));
   }
 

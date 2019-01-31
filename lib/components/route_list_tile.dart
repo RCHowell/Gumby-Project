@@ -13,18 +13,31 @@ class RouteListTile extends StatelessWidget {
     ThemeData theme = Theme.of(context);
     String title = route.name;
     List<Widget> subheadList = [
-      Container(
-        margin: const EdgeInsets.only(right: 8.0),
-        child: Text(
-          route.setter,
-          style: TextStyle(
-            color: Colors.blueGrey[700],
-            fontSize: 14.0,
-          ),
+      Text(
+        route.setter,
+        style: TextStyle(
+          color: Colors.blueGrey[700],
+          fontSize: 14.0,
         ),
       ),
     ];
 
+    int month = route.createdAt.month;
+    int day = route.createdAt.day;
+    int year = route.createdAt.year % 2000;
+    String date = '$month/$day/$year';
+
+    subheadList.add(Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Text(
+          date,
+          style: TextStyle(
+              fontSize: 10.0,
+              fontFamily: 'Roboto',
+              color: Theme
+                  .of(context)
+                  .primaryColor),
+        )));
     subheadList.addAll(_getStars());
 
     return Material(
@@ -37,23 +50,18 @@ class RouteListTile extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Row(children: subheadList),
-        trailing: _trailing(theme),
-      ),
-    );
-  }
-
-  Widget _trailing(ThemeData theme) {
-    Chip chip = Chip(
-      label: Text(
-        route.grade,
-        style: theme.textTheme.body1.copyWith(
-          fontFamily: 'Roboto',
-          color: Colors.white,
+        trailing: Chip(
+          label: Text(
+            route.grade,
+            style: theme.textTheme.body1.copyWith(
+              fontFamily: 'Roboto',
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: theme.primaryColor,
         ),
       ),
-      backgroundColor: theme.primaryColor,
     );
-    return chip;
   }
 
   List<Widget> _getStars() {
@@ -62,10 +70,11 @@ class RouteListTile extends StatelessWidget {
     double size = 14.0;
 
     // Round count to nearest whole
-    num abs = this.route.rating.abs();
+    num avg = route.rating.reduce((acc, v) => acc + v) / route.rating.length;
+    num abs = avg.abs();
     int val = abs.round();
     IconData icon;
-    if (route.rating > 0) {
+    if (avg > 0) {
       icon = Icons.star;
     } else {
       icon = FontAwesomeIcons.bomb;
