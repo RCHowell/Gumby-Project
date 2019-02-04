@@ -3,6 +3,7 @@ import 'package:gumby_project/components/my_title.dart';
 import 'package:gumby_project/components/sector_tile.dart';
 import 'package:gumby_project/components/vote_chart.dart';
 import 'package:gumby_project/models/sector.dart';
+import 'package:gumby_project/models/vote.dart';
 import 'package:gumby_project/presenters/home_presenter.dart';
 import 'package:gumby_project/repos/vote_repo.dart';
 import 'package:gumby_project/views/discussion_view.dart';
@@ -24,14 +25,12 @@ class _HomeViewState extends State<HomeView>
   final _refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
 
   HomePresenter _presenter;
-  VoteRepo _voteRepo;
   List<Sector> _sectors;
 
   @override
   void initState() {
     _sectors = List();
     _presenter = HomePresenter(this);
-    _voteRepo = VoteRepo();
     _presenter.initialize();
     super.initState();
   }
@@ -44,9 +43,11 @@ class _HomeViewState extends State<HomeView>
   }
 
   @override
-  void onVoteCastComplete(String message) {
+  void onVoteCastComplete(Vote vote) {
+    _presenter.cachedVotes.add(vote);
+    String type = (vote.value == 1) ? "keep" : "reset";
     _scaffoldKey.currentState.showSnackBar(SnackBar(
-      content: Text(message),
+      content: Text('Voted to $type sector ${vote.sector}'),
     ));
   }
 
@@ -214,7 +215,7 @@ class _VoteChartWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _presenter.voteRepo.getVotes(),
+      future: _presenter.getVotes(),
       builder: (_, snapshot) {
         switch (snapshot.connectionState) {
           case ConnectionState.done:

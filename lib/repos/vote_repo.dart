@@ -16,14 +16,18 @@ class VoteRepo {
         .then((snapshot) => snapshot.documents.map(Vote.fromDoc).toList());
   }
 
-  Future<String> castVote(String key, int val) {
-    String type = (val == 1) ? "keep" : "reset";
+  Future<Vote> castVote(String key, int val) {
+    Vote v = Vote(
+      sector: key,
+      value: val,
+      createdAt: DateTime.now(),
+    );
     return votes.add({
       'sector': key,
       'value': val,
       'createdAt': DateTime
           .now()
           .millisecondsSinceEpoch,
-    }).then((_) => 'Voted to $type sector $key');
+    }).then((_) => v);
   }
 }

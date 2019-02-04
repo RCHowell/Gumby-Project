@@ -47,8 +47,10 @@ class _RecentRoutesViewState extends State<RecentRoutesView>
               itemBuilder: (_, i) {
                 if (i == _routes.length) return Container();
                 return RouteListTile(_routes[i], () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => RouteView(_routes[i])));
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(
+                      builder: (_) => RouteView(_routes[i])))
+                      .then((_) => _presenter.getLatestRoutes());
                 });
               },
               separatorBuilder: (_, i) => Divider(height: 2.0),

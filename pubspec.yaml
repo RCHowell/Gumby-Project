@@ -1,7 +1,7 @@
 name: gumby_project
 description: Mountain Project for plastic.
 
-version: 1.0.3
+version: 1.0.4+4
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
