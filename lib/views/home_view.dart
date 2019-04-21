@@ -1,3 +1,4 @@
+import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:gumby_project/components/my_title.dart';
 import 'package:gumby_project/components/sector_tile.dart';
@@ -5,11 +6,9 @@ import 'package:gumby_project/components/vote_chart.dart';
 import 'package:gumby_project/models/sector.dart';
 import 'package:gumby_project/models/vote.dart';
 import 'package:gumby_project/presenters/home_presenter.dart';
-import 'package:gumby_project/repos/vote_repo.dart';
 import 'package:gumby_project/views/discussion_view.dart';
-import 'package:gumby_project/views/settings_view.dart';
-import 'package:after_layout/after_layout.dart';
 import 'package:gumby_project/views/recent_routes_view.dart';
+import 'package:gumby_project/views/settings_view.dart';
 
 class HomeView extends StatefulWidget {
   final String title = "Gumby Project".toUpperCase();
@@ -95,22 +94,36 @@ class _HomeViewState extends State<HomeView>
   // -------------------
 
   Widget _appBar() => AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.perm_identity, color: Colors.white),
-          onPressed: () {
-            _goToSettings(context);
-          },
-        ),
+    leading: IconButton(
+      icon: Icon(Icons.perm_identity, color: Colors.white),
+      onPressed: () {
+        _goToSettings(context);
+      },
+    ),
     centerTitle: true,
-        title: Text(
-          'Gumby Project',
-          style: TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
-          ),
-        ),
-      );
+    title: Text(
+      'Gumby Project',
+      style: TextStyle(
+        fontSize: 18.0,
+        fontWeight: FontWeight.w600,
+        color: Colors.white,
+      ),
+    ),
+//    actions: <Widget>[
+//      IconButton(
+//        icon: Icon(Icons.add_circle_outline),
+//        onPressed: () {
+//          Navigator.of(context)
+//              .push(MaterialPageRoute(
+//            builder: (_) => CreateRouteView('A'),
+//            fullscreenDialog: true,
+//          ))
+//              .then(
+//                  (_) => _presenter.getRoutesForSector(widget._sector.id));
+//        },
+//      ),
+//    ],
+  );
 
   Widget whoIsDialog() {
     String whoInput;

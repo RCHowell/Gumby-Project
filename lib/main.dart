@@ -1,9 +1,10 @@
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:gumby_project/whois.dart' as Whois;
-import 'package:flutter/material.dart';
-import 'package:gumby_project/views/home_view.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:gumby_project/views/recent_routes_view.dart';
+import 'package:gumby_project/whois.dart' as Whois;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -54,6 +55,6 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.redAccent,
         highlightColor: Colors.lightBlue,
       ),
-      home: HomeView(),
+    home: RecentRoutesView(),
     );
 }

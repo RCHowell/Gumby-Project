@@ -1,11 +1,12 @@
 import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image/image.dart' as Im;
 import 'package:image_picker/image_picker.dart';
-import 'package:uuid/uuid.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 class ImageUpload extends StatefulWidget {
   final Function onComplete;
@@ -42,7 +43,7 @@ class _ImageUploadState extends State<ImageUpload> {
     this.imageUrl = 'image-${Uuid().v1()}.jpg';
     // Parse and compress image
     Im.Image image = Im.decodeImage(imageFile.readAsBytesSync());
-    Im.Image tinyImage = Im.copyResize(image, 400);
+    Im.Image tinyImage = Im.copyResize(image, 600);
     // Create a temp file and write tinyImage to it
     Directory tempDir = await getTemporaryDirectory();
     File file = await File('${tempDir.path}/$imageUrl').create();
