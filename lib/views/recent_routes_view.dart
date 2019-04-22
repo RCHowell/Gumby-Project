@@ -92,22 +92,31 @@ class _RecentRoutesViewState extends State<RecentRoutesView>
         ],
 
       ),
-      body: (_loading)
-          ? Center(
-        child: CircularProgressIndicator(),
-      )
-          : ListView.separated(
-        itemBuilder: (_, i) {
-          if (i == _routes.length) return Container();
-          return RouteListTile(_routes[i], () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(
-                builder: (_) => RouteView(_routes[i])))
-                .then((_) => _presenter.getLatestRoutes());
+      body: RefreshIndicator(
+        child: (_loading)
+            ? Center(
+          child: CircularProgressIndicator(),
+        )
+            : ListView.separated(
+          itemBuilder: (_, i) {
+            if (i == _routes.length) return Container();
+            return RouteListTile(_routes[i], () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(
+                  builder: (_) => RouteView(_routes[i])))
+                  .then((_) => _presenter.getLatestRoutes());
+            });
+          },
+          separatorBuilder: (_, i) => Divider(height: 2.0),
+          itemCount: _routes.length + 1,
+        ),
+        onRefresh: () {
+          setState(() {
+            _loading = true;
           });
+          _presenter.getLatestRoutes();
+          return Future.value(null);
         },
-        separatorBuilder: (_, i) => Divider(height: 2.0),
-        itemCount: _routes.length + 1,
       ),
     );
   }
