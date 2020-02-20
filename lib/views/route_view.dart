@@ -210,9 +210,9 @@ class _RouteViewState extends State<RouteView> implements RouteViewContract {
         onPressed: () {
           Navigator.of(context)
               .push(MaterialPageRoute(
-            builder: (_) => MessageView(routeId: widget.route.id),
-            fullscreenDialog: true,
-          ))
+                builder: (_) => MessageView(routeId: widget.route.id),
+                fullscreenDialog: true,
+              ))
               .then((_) => _presenter.getCommentsForRoute(widget.route.id));
         },
       ),
@@ -271,6 +271,7 @@ class LargeRouteImage extends StatelessWidget {
       app: FirebaseApp.instance,
       storageBucket: 'gs://gumby-project-images',
     );
+    print(imageUrl);
     StorageReference ref = storage.ref().child(imageUrl);
     return await ref.getDownloadURL();
   }
@@ -282,20 +283,22 @@ class LargeRouteImage extends StatelessWidget {
         builder: (_, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.done:
-              if (snapshot.hasError)
+              if (snapshot.hasError) {
+                print(snapshot.error);
+                print(snapshot.data);
                 return Text('${snapshot.error}');
+              }
               else
                 return InkWell(
                   onTap: () {
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              HeroPhotoViewWrapper(
-                                imageProvider:
+                          builder: (context) => HeroPhotoViewWrapper(
+                            imageProvider:
                                 CachedNetworkImageProvider(snapshot.data),
-                                tag: snapshot.data,
-                              ),
+                            tag: snapshot.data,
+                          ),
                         ));
                   },
                   child: Container(
@@ -304,13 +307,14 @@ class LargeRouteImage extends StatelessWidget {
                       tag: snapshot.data,
                       child: CachedNetworkImage(
                         imageUrl: snapshot.data,
-                        placeholder: Container(
+                        placeholder: (BuildContext ctx, String url) =>
+                            Container(
                           height: height,
                           child: Center(
                             child: CircularProgressIndicator(),
                           ),
                         ),
-                        errorWidget: Icon(Icons.error),
+                        errorWidget: (ctx, url, err) => Icon(Icons.error),
                         fit: BoxFit.cover,
                         height: height,
                       ),
@@ -379,32 +383,30 @@ class _RateRouteViewState extends State<RateRouteView> {
       ),
       body: (_loading)
           ? Center(
-        child: CircularProgressIndicator(),
-      )
+              child: CircularProgressIndicator(),
+            )
           : ListView.builder(
-        itemBuilder: (_, i) {
-          // 0,1,2,3,4,5 -> -3,-2,-1,1,2,3
-          int val = (i >= 3) ? i - 2 : i - 3;
-          return Container(
-            margin: const EdgeInsets.symmetric(
-                vertical: 2.0, horizontal: 12.0),
-            child: FlatButton(
-              color: Theme
-                  .of(context)
-                  .primaryColor,
-              onPressed: () {
-                rateRoute(val);
+              itemBuilder: (_, i) {
+                // 0,1,2,3,4,5 -> -3,-2,-1,1,2,3
+                int val = (i >= 3) ? i - 2 : i - 3;
+                return Container(
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 2.0, horizontal: 12.0),
+                  child: FlatButton(
+                    color: Theme.of(context).primaryColor,
+                    onPressed: () {
+                      rateRoute(val);
+                    },
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _iconList(val),
+                    ),
+                  ),
+                );
               },
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: _iconList(val),
-              ),
+              itemCount: 6,
             ),
-          );
-        },
-        itemCount: 6,
-      ),
     );
   }
 }

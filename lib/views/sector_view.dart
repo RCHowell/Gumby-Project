@@ -75,9 +75,11 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
       } else {
         _routes.forEach((gp_route.Route r) {
           children.add(RouteListTile(r, () {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => RouteView(r),
-            )).then((_) => _presenter.getRoutesForSector(widget._sector.id));
+            Navigator.of(context)
+                .push(MaterialPageRoute(
+                  builder: (_) => RouteView(r),
+                ))
+                .then((_) => _presenter.getRoutesForSector(widget._sector.id));
           }));
           children.add(Divider(height: 2.0));
         });
@@ -102,9 +104,9 @@ class _SectorViewState extends State<SectorView> implements SectorViewContract {
             onPressed: () {
               Navigator.of(context)
                   .push(MaterialPageRoute(
-                builder: (_) => CreateRouteView(widget._sector.id),
-                fullscreenDialog: true,
-              ))
+                    builder: (_) => CreateRouteView(widget._sector.id),
+                    fullscreenDialog: true,
+                  ))
                   .then(
                       (_) => _presenter.getRoutesForSector(widget._sector.id));
             },
@@ -128,13 +130,13 @@ class LargeSectorImage extends StatelessWidget {
   Widget build(BuildContext context) {
     CachedNetworkImage img = CachedNetworkImage(
       imageUrl: url,
-      placeholder: Container(
+      placeholder: (BuildContext ctx, String url) => Container(
         height: height,
         child: Center(
           child: CircularProgressIndicator(),
         ),
       ),
-      errorWidget: Icon(Icons.error),
+      errorWidget: (ctx, url, err) => Icon(Icons.error),
       fit: BoxFit.cover,
       height: height,
     );

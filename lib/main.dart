@@ -9,6 +9,7 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Configure Firebase
   if (FirebaseApp.instance == null) {
@@ -19,7 +20,7 @@ void main() async {
             ? '1:279870594027:ios:ddef786c77d9cb08'
             : '1:279870594027:android:ddef786c77d9cb08',
         gcmSenderID: '279870594027',
-        apiKey: 'AIzaSyCkzzRouaRRXBO1am8uNt-jRcDLB14oTCY',
+        apiKey: 'AIzaSyBqtYcEEFSt2nD4FcNHbtws_wut8nFz9BQ',
         projectID: 'gumby-project',
       ),
     );
@@ -37,7 +38,7 @@ Future<void> setWhoIs() async {
   String path = join(docDir.path, "whois");
   // Only copy if the database doesn't exist
   if (FileSystemEntity.typeSync(path) != FileSystemEntityType.notFound) {
-    Whois.whois = await File(path).readAsStringSync();
+    Whois.whois = File(path).readAsStringSync();
   }
 }
 

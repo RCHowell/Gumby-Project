@@ -43,7 +43,7 @@ class _ImageUploadState extends State<ImageUpload> {
     this.imageUrl = 'image-${Uuid().v1()}.jpg';
     // Parse and compress image
     Im.Image image = Im.decodeImage(imageFile.readAsBytesSync());
-    Im.Image tinyImage = Im.copyResize(image, 600);
+    Im.Image tinyImage = Im.copyResize(image, height: 600);
     // Create a temp file and write tinyImage to it
     Directory tempDir = await getTemporaryDirectory();
     File file = await File('${tempDir.path}/$imageUrl').create();

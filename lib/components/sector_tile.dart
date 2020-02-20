@@ -71,14 +71,14 @@ class SectorTile extends StatelessWidget {
 
     CachedNetworkImage img = CachedNetworkImage(
       imageUrl: _sector.thumbnailUrl,
-      placeholder: Container(
+      placeholder: (BuildContext ctx, String url) => Container(
         height: _imgHeight,
         width: _imgWidth,
         child: Center(
           child: CircularProgressIndicator(),
         ),
       ),
-      errorWidget: Icon(Icons.error),
+      errorWidget: (ctx, url, error) => Icon(Icons.error),
       fit: BoxFit.cover,
       height: _imgHeight,
       width: _imgWidth,
